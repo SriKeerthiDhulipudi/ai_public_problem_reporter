@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report an Issue - Public Problem Reporter</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>🏙️ Public Problem Reporter</h1>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li>
+            <a href="/submit" class="nav-link btn-primary">Report Issue</a>
+          </li>
+          <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+          <li>
+            <button
+              class="theme-toggle"
+              title="Toggle dark/light theme"
+              aria-label="Toggle theme"
+            >
+              🌙
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Form Section -->
+    <section class="form-section">
+      <div class="container">
+        <div class="form-container">
+          <h2>Report a Public Issue</h2>
+          <p class="form-subtitle">
+            Help us know about problems in your community. Your reports help
+            authorities prioritize solutions.
+          </p>
+
+          <form id="reportForm" class="report-form">
+            <!-- Step 1: Issue Type -->
+            <fieldset class="form-section">
+              <legend>Step 1: What's the Problem?</legend>
+              <div class="form-group">
+                <label for="problemType">Type of Issue *</label>
+                <input
+                  type="text"
+                  id="problemType"
+                  name="problem_type"
+                  placeholder="e.g., Pothole, Garbage, Water Leak, Street Light"
+                  required
+                  list="issue-suggestions"
+                />
+                <datalist id="issue-suggestions">
+                  <option value="Road Damage"></option>
+                  <option value="Pothole"></option>
+                  <option value="Cracked Pavement"></option>
+                  <option value="Garbage"></option>
+                  <option value="Water Leakage"></option>
+                  <option value="Street Light"></option>
+                  <option value="Broken Sidewalk"></option>
+                  <option value="Traffic Sign"></option>
+                  <option value="Tree/Vegetation"></option>
+                  <option value="Sewage Issue"></option>
+                </datalist>
+              </div>
+            </fieldset>
+
+            <!-- Step 2: Location -->
+            <fieldset class="form-section">
+              <legend>Step 2: Where is the Problem?</legend>
+              <div class="form-group">
+                <label for="location">Exact Location *</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px">
+                  <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    placeholder="Street name, area, ward number, nearby landmarks"
+                    required
+                  />
+                  <button
+                    type="button"
+                    id="getLocationBtn"
+                    class="btn btn-primary"
+                    style="white-space: nowrap"
+                  >
+                    📍 See Location
+                  </button>
+                </div>
+                <div
+                  id="locationDisplay"
+                  style="
+                    display: none;
+                    padding: 10px;
+                    background: #f0f0f0;
+                    border-radius: 5px;
+                    margin-top: 10px;
+                  "
+                >
+                  <p><strong>Live Location Detected:</strong></p>
+                  <p id="locationAddress" style="margin: 5px 0"></p>
+                  <p
+                    id="locationCoords"
+                    style="margin: 5px 0; font-size: 0.9em; color: #666"
+                  ></p>
+                </div>
+              </div>
+              <input type="hidden" id="latitude" name="latitude" />
+              <input type="hidden" id="longitude" name="longitude" />
+            </fieldset>
+
+            <!-- Step 3: Description -->
+            <fieldset class="form-section">
+              <legend>Step 3: Describe the Problem</legend>
+              <div class="form-group">
+                <label for="description">Detailed Description *</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="5"
+                  placeholder="Please describe the problem clearly. Include size, damage extent, and any safety concerns."
+                  required
+                ></textarea>
+              </div>
+            </fieldset>
+
+            <!-- Step 4: Date -->
+            <fieldset class="form-section">
+              <legend>Step 4: When Did You Notice It?</legend>
+              <div class="form-group">
+                <label for="dateNoticed">Date Noticed *</label>
+                <input
+                  type="text"
+                  id="dateNoticed"
+                  name="date_noticed"
+                  placeholder="Today, Yesterday, or Date (DD/MM/YYYY)"
+                  required
+                />
+              </div>
+            </fieldset>
+
+            <!-- Step 5: Severity -->
+            <fieldset class="form-section">
+              <legend>Step 5: How Serious is It?</legend>
+              <div class="form-group">
+                <label>Severity Level *</label>
+                <div class="radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="severity" value="Low" required />
+                    <span>🟢 Low</span>
+                    <small>Minor issue, not urgent</small>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="severity" value="Medium" />
+                    <span>🟡 Medium</span>
+                    <small>Moderate issue, requires action</small>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="severity" value="High" />
+                    <span>🔴 High</span>
+                    <small>Urgent, potentially dangerous</small>
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 6: Evidence (Optional) -->
+            <fieldset class="form-section">
+              <legend>Step 6: Evidence - Photos or Videos (Optional)</legend>
+              <div class="form-group">
+                <label for="imageUpload">📸 Upload Photo/Screenshot</label>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  name="image"
+                  accept="image/*"
+                  style="display: block; margin-bottom: 10px"
+                />
+                <div id="imagePreview" style="display: none; margin: 15px 0">
+                  <img
+                    id="previewImg"
+                    style="
+                      max-width: 100%;
+                      max-height: 300px;
+                      border-radius: 5px;
+                      border: 2px solid #2563eb;
+                    "
+                  />
+                  <p
+                    id="imageAnalysis"
+                    style="
+                      margin-top: 10px;
+                      padding: 10px;
+                      background: #e3f2fd;
+                      border-radius: 5px;
+                      color: #1565c0;
+                    "
+                  ></p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="evidence">Additional Notes</label>
+                <textarea
+                  id="evidence"
+                  name="evidence"
+                  rows="3"
+                  placeholder="Describe any additional evidence (optional)"
+                ></textarea>
+              </div>
+            </fieldset>
+
+            <!-- Step 7: Contact (Optional) -->
+            <fieldset class="form-section">
+              <legend>Step 7: Your Contact Information (Optional)</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Your name (leave blank for Anonymous)"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder="Your phone number"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Your email address"
+                />
+              </div>
+              <p class="notice">
+                💡 Providing your contact info helps authorities follow up with
+                you.
+              </p>
+            </fieldset>
+
+            <!-- Submit -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-large">Submit Report</button>
+              <button type="reset" class="btn btn-secondary">Clear Form</button>
+            </div>
+          </form>
+
+          <!-- Success Message -->
+          <div
+            id="successMessage"
+            class="success-message"
+            style="display: none"
+          >
+            <h3>✅ Report Submitted Successfully!</h3>
+            <div
+              style="
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 15px 0;
+                border-left: 4px solid #2563eb;
+              "
+            >
+              <h4 style="margin-top: 0">PUBLIC ISSUE REPORT</h4>
+              <p>
+                <strong>Reference ID:</strong> <span id="referenceId"></span>
+              </p>
+              <p>
+                <strong>Location:</strong> <span id="reportLocation"></span>
+              </p>
+              <p>
+                <strong>GPS Coordinates:</strong>
+                <span id="reportCoords"></span>
+              </p>
+              <p><strong>Issue Type:</strong> <span id="issueType"></span></p>
+              <p>
+                <strong>AI Description:</strong>
+                <span id="aiDescription"></span>
+              </p>
+              <p>
+                <strong>Severity Level:</strong>
+                <span id="severityLevel"></span>
+              </p>
+              <p>
+                <strong>Suggested Department:</strong>
+                <span id="suggestedDept"></span>
+              </p>
+              <p>
+                <strong>Date Reported:</strong> <span id="reportDate"></span>
+              </p>
+              <p>
+                <strong>Status:</strong>
+                <span
+                  class="status-badge"
+                  id="reportStatusBadge"
+                  style="
+                    display: inline-block;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 20px;
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    background-color: #dbeafe;
+                    color: #1e3a8a;
+                  "
+                  >Submitted</span
+                >
+              </p>
+            </div>
+            <p style="margin-top: 15px; color: #666">
+              Your report has been successfully submitted and is now
+              <strong>Submitted</strong> for review. You can track the status
+              updates on the dashboard.
+            </p>
+            <a href="/dashboard" class="btn">View Dashboard</a>
+            <button class="btn btn-secondary" onclick="location.reload()">
+              Submit Another Report
+            </button>
+          </div>
+
+          <!-- Error Message -->
+          <div id="errorMessage" class="error-message" style="display: none">
+            <h3>❌ Error Submitting Report</h3>
+            <p id="errorText"></p>
+            <button
+              class="btn"
+              onclick="
+                document.getElementById('errorMessage').style.display = 'none'
+              "
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          &copy; 2026 AI Public Problem Reporter. Empowering citizens to improve
+          communities.
+        </p>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+      // GPS Location Detection
+      const getLocationBtn = document.getElementById("getLocationBtn");
+
+      getLocationBtn.addEventListener("click", function () {
+        if (navigator.geolocation) {
+          getLocationBtn.disabled = true;
+          getLocationBtn.textContent = "📍 Detecting...";
+
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude.toFixed(6);
+              const lng = position.coords.longitude.toFixed(6);
+
+              // Store coordinates
+              document.getElementById("latitude").value = lat;
+              document.getElementById("longitude").value = lng;
+
+              // Display coordinates
+              document.getElementById("locationCoords").textContent =
+                `Latitude: ${lat}, Longitude: ${lng}`;
+
+              // Try to get address using reverse geocoding (optional)
+              fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
+              )
+                .then((response) => response.json())
+                .then((data) => {
+                  const address =
+                    data.address?.road ||
+                    data.address?.village ||
+                    data.address?.city ||
+                    "Address not found";
+                  document.getElementById("locationDisplay").style.display =
+                    "block";
+                  document.getElementById("locationAddress").textContent =
+                    address;
+                  if (!document.getElementById("location").value) {
+                    document.getElementById("location").value = address;
+                  }
+                })
+                .catch((error) => {
+                  document.getElementById("locationDisplay").style.display =
+                    "block";
+                  document.getElementById("locationAddress").textContent =
+                    "Address detection unavailable";
+                });
+
+              getLocationBtn.disabled = false;
+              getLocationBtn.textContent = "📍 Location Updated";
+            },
+            function (error) {
+              getLocationBtn.disabled = false;
+              getLocationBtn.textContent = "📍 See Location";
+              alert("Error getting location: " + error.message);
+            },
+          );
+        } else {
+          alert("Geolocation is not supported by your browser");
+        }
+      });
+
+      // Handle image upload and analysis
+      const imageUploadInput = document.getElementById("imageUpload");
+      imageUploadInput.addEventListener("change", async function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Display image preview
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          document.getElementById("previewImg").src = event.target.result;
+          document.getElementById("imagePreview").style.display = "block";
+
+          // Send image to backend for analysis
+          const formData = new FormData();
+          formData.append("image", file);
+
+          fetch("/api/analyze-image", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // Update form with AI-detected issue type
+                document.getElementById("problemType").value = data.issue_type;
+                document.getElementById("severity").value =
+                  data.severity || "Medium";
+
+                // Show analysis
+                const analysisText = `
+                🔍 Image Analysis:
+                Detected Issue: ${data.issue_type}
+                Confidence: ${data.confidence}%
+                Analysis: ${data.analysis}
+              `;
+                document.getElementById("imageAnalysis").innerHTML =
+                  analysisText;
+
+                // Optionally auto-fill description
+                if (!document.getElementById("description").value) {
+                  document.getElementById("description").value =
+                    data.suggested_description;
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Image analysis error:", error);
+              document.getElementById("imageAnalysis").innerHTML =
+                "✓ Image uploaded (analysis optional)";
+            });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Handle form submission
+      document
+        .getElementById("reportForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Get image file if present
+          const imageFile = document.getElementById("imageUpload").files[0];
+
+          // Get form data
+          const formData = {
+            problem_type: document.getElementById("problemType").value,
+            location: document.getElementById("location").value,
+            description: document.getElementById("description").value,
+            date_noticed: document.getElementById("dateNoticed").value,
+            severity: document.querySelector('input[name="severity"]:checked')
+              .value,
+            evidence: document.getElementById("evidence").value || "",
+            name: document.getElementById("name").value || "Anonymous",
+            phone: document.getElementById("phone").value || "",
+            email: document.getElementById("email").value || "",
+            latitude: document.getElementById("latitude").value || "",
+            longitude: document.getElementById("longitude").value || "",
+            has_image: imageFile ? true : false,
+          };
+
+          try {
+            const response = await fetch("/api/submit-report", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              // Show success message with AI-generated data
+              document.getElementById("reportForm").style.display = "none";
+              document.getElementById("referenceId").textContent =
+                result.reference_id;
+              document.getElementById("reportLocation").textContent =
+                result.location;
+              document.getElementById("reportCoords").textContent =
+                result.latitude && result.longitude
+                  ? `${result.latitude}, ${result.longitude}`
+                  : "Not detected";
+              document.getElementById("issueType").textContent =
+                result.problem_type;
+              document.getElementById("aiDescription").textContent =
+                result.ai_description || result.description;
+              document.getElementById("severityLevel").textContent =
+                result.severity;
+              document.getElementById("suggestedDept").textContent =
+                result.department;
+              document.getElementById("reportDate").textContent =
+                new Date().toLocaleDateString();
+              document.getElementById("successMessage").style.display = "block";
+              window.scrollTo(0, 0);
+            } else {
+              // Show error message
+              document.getElementById("errorText").textContent =
+                result.error || "An error occurred";
+              document.getElementById("errorMessage").style.display = "block";
+            }
+          } catch (error) {
+            document.getElementById("errorText").textContent =
+              "Network error: " + error.message;
+            document.getElementById("errorMessage").style.display = "block";
+          }
+        });
+    </script>
+  </body>
+</html>

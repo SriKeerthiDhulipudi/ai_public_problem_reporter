@@ -1,0 +1,15 @@
+{
+  "problem_type": "Water leak",
+  "location": "Riverside Lane, near Central Park, Ward 2",
+  "description": "Water pipe has burst beneath the road. Water is seeping through road cracks and creating a waterlogged area about 10 meters long. Slippery road surface. Significant water wastage. About 500+ liters daily.",
+  "date_noticed": "Yesterday",
+  "severity": "High",
+  "evidence": "Visible cracks in the road above the leak. Water flow reduced in 5 nearby households.",
+  "contact": {
+    "name": "Sarah Johnson",
+    "phone": "9876543210",
+    "email": "sarah.j@email.com"
+  },
+  "department": "Municipal Corporation / General Public Works",
+  "report_generated": "2026-03-14T10:52:14.697782"
+}

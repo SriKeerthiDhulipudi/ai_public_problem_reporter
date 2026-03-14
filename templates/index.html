@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Public Problem Reporter - Report Issues Easily</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>🏙️ Public Problem Reporter</h1>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li>
+            <a href="/submit" class="nav-link btn-primary">Report Issue</a>
+          </li>
+          <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+          <li>
+            <button
+              class="theme-toggle"
+              title="Toggle dark/light theme"
+              aria-label="Toggle theme"
+            >
+              🌙
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <h2>Report Public Issues Easily</h2>
+        <p>
+          Help improve your community by reporting infrastructure problems to
+          local authorities
+        </p>
+        <a href="/submit" class="btn btn-large">Report an Issue Now</a>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h3>Why Use Our Platform?</h3>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h4>Easy Reporting</h4>
+            <p>Simple step-by-step process to report any public issue</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h4>Smart Routing</h4>
+            <p>Automatically sends reports to the right department</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h4>Track Progress</h4>
+            <p>Monitor the status of your reports in real-time</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h4>Secure & Private</h4>
+            <p>Your data is protected and handled with care</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h4>Updates & Comments</h4>
+            <p>Receive updates and add comments to your reports</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h4>Community Impact</h4>
+            <p>Together we make our neighborhoods better</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Issues Section -->
+    <section class="issues">
+      <div class="container">
+        <h3>Common Issues We Handle</h3>
+        <div class="issues-grid">
+          <div class="issue-tag">🛣️ Road Damage</div>
+          <div class="issue-tag">🚨 Potholes</div>
+          <div class="issue-tag">🗑️ Garbage</div>
+          <div class="issue-tag">💧 Water Leaks</div>
+          <div class="issue-tag">💡 Street Lights</div>
+          <div class="issue-tag">🚧 Infrastructure</div>
+          <div class="issue-tag">🌳 Parks & Trees</div>
+          <div class="issue-tag">🛣️ Sidewalks</div>
+          <div class="issue-tag">🚦 Traffic Issues</div>
+          <div class="issue-tag">📵 Utilities</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+      <div class="container">
+        <h3>How It Works</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h4>Report</h4>
+            <p>Click "Report Issue" and fill in details about the problem</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h4>Smart Routing</h4>
+            <p>Our system routes it to the correct department automatically</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h4>Track</h4>
+            <p>Monitor your report status on the dashboard</p>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <h4>Resolution</h4>
+            <p>Authority takes action and updates you on progress</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+      <div class="container">
+        <h3>Community Impact</h3>
+        <div id="stats-container" class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="total-reports">0</div>
+            <div class="stat-label">Reports Submitted</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="resolved-reports">0</div>
+            <div class="stat-label">Issues Resolved</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="in-progress">0</div>
+            <div class="stat-label">In Progress</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta">
+      <div class="container">
+        <h3>Make a Difference Today</h3>
+        <p>Every report helps improve our community. Start reporting now!</p>
+        <a href="/submit" class="btn btn-large">Report Your First Issue</a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          &copy; 2026 AI Public Problem Reporter. Empowering citizens to improve
+          communities.
+        </p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Contact Us</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+      // Load statistics on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        fetch("/api/statistics")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("total-reports").textContent =
+              data.total_reports;
+            document.getElementById("resolved-reports").textContent =
+              data.by_status.Resolved || 0;
+            document.getElementById("in-progress").textContent =
+              data.by_status["In Progress"] || 0;
+          });
+      });
+    </script>
+  </body>
+</html>

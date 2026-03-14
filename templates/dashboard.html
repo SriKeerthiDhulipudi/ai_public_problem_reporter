@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Public Problem Reporter</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>🏙️ Public Problem Reporter</h1>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li>
+            <a href="/submit" class="nav-link btn-primary">Report Issue</a>
+          </li>
+          <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+          <li>
+            <button
+              class="theme-toggle"
+              title="Toggle dark/light theme"
+              aria-label="Toggle theme"
+            >
+              🌙
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard">
+      <div class="container">
+        <h2>Dashboard</h2>
+        <p>Track your reports and view community issues</p>
+
+        <!-- Search and Filters -->
+        <div class="search-section">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-box"
+            placeholder="Search by location, reference ID..."
+          />
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">
+              All Reports
+            </button>
+            <button class="filter-btn" data-filter="High">High Priority</button>
+            <button class="filter-btn" data-filter="Medium">
+              Medium Priority
+            </button>
+            <button class="filter-btn" data-filter="Low">Low Priority</button>
+          </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-value" id="totalCount">0</div>
+            <div class="stat-label">Total Reports</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="submittedCount">0</div>
+            <div class="stat-label">Submitted</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="inProgressCount">0</div>
+            <div class="stat-label">In Progress</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="resolvedCount">0</div>
+            <div class="stat-label">Resolved</div>
+          </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="reports-table-container">
+          <table class="reports-table">
+            <thead>
+              <tr>
+                <th>Reference ID</th>
+                <th>Issue Type</th>
+                <th>Location</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTableBody">
+              <tr>
+                <td colspan="7" class="empty-state">
+                  No reports yet.
+                  <a href="/submit">Submit your first report</a>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Report Details Modal -->
+        <div id="reportModal" class="modal" style="display: none">
+          <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+
+            <div id="reportDetails" class="report-details">
+              <!-- Report details will be loaded here -->
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section">
+              <h3>Comments & Updates</h3>
+              <div id="commentsList" class="comments-list">
+                <!-- Comments will be loaded here -->
+              </div>
+
+              <!-- Add Comment Form -->
+              <div class="add-comment-form">
+                <textarea
+                  id="newComment"
+                  placeholder="Add a comment or update..."
+                  rows="3"
+                ></textarea>
+                <button class="btn" onclick="addComment()">Post Comment</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          &copy; 2026 AI Public Problem Reporter. Empowering citizens to improve
+          communities.
+        </p>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+      let allReports = [];
+      let currentFilter = "all";
+
+      // Load reports on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadReports();
+        setupFilterButtons();
+        setupSearch();
+      });
+
+      function loadReports() {
+        fetch("/api/reports")
+          .then((response) => response.json())
+          .then((data) => {
+            allReports = data;
+            updateStatistics();
+            displayReports(allReports);
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function updateStatistics() {
+        const tbody = document.getElementById("reportsTableBody");
+
+        let submitted = 0,
+          inProgress = 0,
+          resolved = 0;
+
+        allReports.forEach((report) => {
+          if (report.status === "Submitted") submitted++;
+          else if (report.status === "In Progress") inProgress++;
+          else if (report.status === "Resolved") resolved++;
+        });
+
+        document.getElementById("totalCount").textContent = allReports.length;
+        document.getElementById("submittedCount").textContent = submitted;
+        document.getElementById("inProgressCount").textContent = inProgress;
+        document.getElementById("resolvedCount").textContent = resolved;
+      }
+
+      function displayReports(reports) {
+        const tbody = document.getElementById("reportsTableBody");
+
+        if (reports.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="7" class="empty-state">No reports found. <a href="/submit">Submit one now</a>.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reports
+          .map(
+            (report) => `
+                <tr class="severity-${report.severity.toLowerCase()}">
+                    <td><strong>${report.reference_id}</strong></td>
+                    <td>${report.problem_type}</td>
+                    <td>${report.location}</td>
+                    <td>
+                        <span class="severity-badge severity-${report.severity.toLowerCase()}">
+                            ${report.severity}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${report.status.toLowerCase().replace(" ", "-")}">
+                            ${report.status}
+                        </span>
+                    </td>
+                    <td>${new Date(report.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-small" onclick="viewReport('${report.reference_id}')">View</button>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      function setupFilterButtons() {
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            document
+              .querySelectorAll(".filter-btn")
+              .forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+
+            currentFilter = this.dataset.filter;
+
+            if (currentFilter === "all") {
+              displayReports(allReports);
+            } else {
+              const filtered = allReports.filter(
+                (r) => r.severity === currentFilter,
+              );
+              displayReports(filtered);
+            }
+          });
+        });
+      }
+
+      function setupSearch() {
+        document
+          .getElementById("searchInput")
+          .addEventListener("keyup", function (e) {
+            const query = e.target.value.toLowerCase();
+
+            const filtered = allReports.filter(
+              (report) =>
+                report.location.toLowerCase().includes(query) ||
+                report.reference_id.toLowerCase().includes(query) ||
+                report.problem_type.toLowerCase().includes(query),
+            );
+
+            displayReports(filtered);
+          });
+      }
+
+      function viewReport(referenceId) {
+        fetch(`/api/reports/${referenceId}`)
+          .then((response) => response.json())
+          .then((report) => {
+            displayReportDetails(report);
+            document.getElementById("reportModal").style.display = "block";
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function displayReportDetails(report) {
+        const details = document.getElementById("reportDetails");
+        const createdDate = new Date(report.created_at).toLocaleString();
+
+        details.innerHTML = `
+                <h3>Report Details</h3>
+                <p><strong>Reference ID:</strong> ${report.reference_id}</p>
+                <p><strong>Issue Type:</strong> ${report.problem_type}</p>
+                <p><strong>Location:</strong> ${report.location}</p>
+                <p><strong>Description:</strong> ${report.description}</p>
+                <p><strong>Date Noticed:</strong> ${report.date_noticed}</p>
+                <p><strong>Severity:</strong> <span class="severity-badge severity-${report.severity.toLowerCase()}">${report.severity}</span></p>
+                <p><strong>Status:</strong> 
+                  <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+                    <select id="statusSelect" class="status-select" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background-color: var(--background-color); color: var(--text-color);">
+                      <option value="Submitted" ${report.status === "Submitted" ? "selected" : ""}>Submitted</option>
+                      <option value="Under Review" ${report.status === "Under Review" ? "selected" : ""}>Under Review</option>
+                      <option value="In Progress" ${report.status === "In Progress" ? "selected" : ""}>In Progress</option>
+                      <option value="Resolved" ${report.status === "Resolved" ? "selected" : ""}>Resolved</option>
+                      <option value="Closed" ${report.status === "Closed" ? "selected" : ""}>Closed</option>
+                    </select>
+                    <button onclick="updateReportStatus('${report.reference_id}')" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Update Status</button>
+                  </div>
+                </p>
+                <p><strong>Department:</strong> ${report.department}</p>
+                <p><strong>Evidence:</strong> ${report.evidence || "None provided"}</p>
+                <p><strong>Submitted By:</strong> ${report.name} ${report.phone ? "(" + report.phone + ")" : ""} ${report.email ? "(" + report.email + ")" : ""}</p>
+                <p><strong>Submitted On:</strong> ${createdDate}</p>
+            `;
+
+        loadComments(report.id);
+      }
+
+      function loadComments(reportId) {
+        // Store report ID for adding comments
+        document.getElementById("newComment").dataset.reportId = reportId;
+
+        // Note: In a real app, would fetch from /api/reports/{reference_id}/comments
+        const commentsList = document.getElementById("commentsList");
+        commentsList.innerHTML =
+          '<p class="no-comments">No comments yet. Be the first to comment!</p>';
+      }
+
+      function addComment() {
+        const commentText = document.getElementById("newComment").value;
+
+        if (!commentText.trim()) {
+          alert("Please enter a comment");
+          return;
+        }
+
+        // In a real implementation, would send to server
+        alert("Comment feature available in full deployment");
+
+        // Reset form
+        document.getElementById("newComment").value = "";
+      }
+
+      function updateReportStatus(referenceId) {
+        const statusSelect = document.getElementById("statusSelect");
+        const newStatus = statusSelect.value;
+
+        if (!newStatus) {
+          alert("Please select a status");
+          return;
+        }
+
+        // Send update to server
+        fetch(`/api/reports/${referenceId}/status`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("✅ Status updated successfully!");
+              // Refresh the reports list
+              loadReports();
+              // Close modal
+              document.getElementById("reportModal").style.display = "none";
+            } else {
+              alert(
+                "❌ Error updating status: " + (data.error || "Unknown error"),
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("❌ Failed to update status");
+          });
+      }
+
+      function closeModal() {
+        document.getElementById("reportModal").style.display = "none";
+      }
+
+      // Close modal when clicking outside
+      window.onclick = function (event) {
+        const modal = document.getElementById("reportModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "problem_type": "Pothole",
+  "location": "Main Street, Ward 5, near City Center",
+  "description": "Large pothole in the middle of the road, approximately 2 feet wide and 1.5 feet deep. Water pooling inside. Vehicles are swerving around it creating traffic hazard.",
+  "date_noticed": "Today",
+  "severity": "High",
+  "evidence": "Photo evidence available on my phone",
+  "contact": {
+    "name": "Raj Kumar",
+    "phone": "9876543210",
+    "email": "raj.kumar@email.com"
+  },
+  "department": "Municipal Corporation / Public Works Department",
+  "report_generated": "2026-03-14T10:42:02.534882"
+}
